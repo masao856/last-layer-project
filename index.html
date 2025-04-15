@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Last Layer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+    }
+    button {
+      margin: 6px;
+      padding: 10px 20px;
+      font-size: 15px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #status, #log {
+      margin: 12px auto;
+      width: 92%;
+      max-width: 600px;
+    }
+    #log {
+      padding: 8px;
+      background-color: #222;
+      min-height: 60px;
+    }
+    #scene {
+      width: 85%;
+      max-width: 320px;
+      height: auto;
+      margin: 8px;
+      border: 1px solid #555;
+    }
+    .item, .skill {
+      display: inline-block;
+      margin: 4px;
+      padding: 5px;
+      background-color: #444;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .item img {
+      width: 18px;
+      height: 18px;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Last Layer</h1>
+  <div id="status"></div>
+  <img id="scene" src="safe_zone_background.png" alt="scene" onerror="this.style.display='none'" />
+  <div id="log">冒険を始めよう…</div>
+  <div>
+    <button id="forwardBtn">進む</button>
+    <button id="backBtn">戻る</button>
+    <button id="attackBtn">攻撃</button>
+    <button id="itemBtn">アイテム</button>
+    <button id="skillBtn">スキル</button>
+  </div>
+  <div id="items"></div>
+  <div id="skills"></div>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
