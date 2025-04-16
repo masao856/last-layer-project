@@ -1,1 +1,1 @@
-// dummy file for now
+console.log("battle.js loaded");

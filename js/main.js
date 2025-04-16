@@ -1,4 +1,1 @@
-import './state.js';
-import './ui.js';
-import './battle.js';
-import './skills.js';
+console.log("main.js loaded");
