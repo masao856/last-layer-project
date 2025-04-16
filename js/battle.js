@@ -1,15 +1,26 @@
-import { setCurrentEnemy } from './state.js';
+
+import { player, currentEnemy, setCurrentEnemy } from './state.js';
 import { logMessage } from './ui.js';
+import { skills } from './skills.js';
 
-const enemies = ["野盗", "ゾンビ", "獣人の野盗"];
+export function castSkillByName(name) {
+  const skill = skills[name];
+  if (!skill) return logMessage("無効なスキル！");
+  if (player.mp < skill.cost) return logMessage("MPが足りない！");
 
-export function encounterEnemy() {
-  const enemy = enemies[Math.floor(Math.random() * enemies.length)];
-  setCurrentEnemy(enemy);
-  logMessage(`敵「${enemy}」が現れた！`);
+  player.mp -= skill.cost;
+
+  if (skill.type === "heal") {
+    player.hp = Math.min(player.maxHp, player.hp + skill.power);
+    logMessage(`${name} を使った！HPが回復した！`);
+  } else if (skill.type === "attack") {
+    if (!currentEnemy) return logMessage("敵がいない！");
+    logMessage(`${name} を放った！${skill.attribute}属性の攻撃！`);
+    // 敵に属性処理とか追加予定
+    setCurrentEnemy(null); // ダミーで即撃破
+  } else if (skill.type === "status") {
+    logMessage(`${name} を使った！敵に状態異常を与えた！`);
+  }
 }
 
-document.getElementById("attack").addEventListener("click", () => {
-  logMessage("攻撃した！敵を倒した！");
-  setCurrentEnemy(null);
-});
+window.castSkillByName = castSkillByName;
