@@ -1,28 +1,24 @@
-import { showSkillOptions } from './ui.js';
-import { player } from './state.js';
-
-function log(msg) {
-  document.getElementById("log").innerText = msg;
-}
+import { rollTreasureEvent } from './event.js';
 
 document.getElementById("move").addEventListener("click", () => {
-  player.location += 100;
-  log("進んだ！");
+  const result = rollTreasureEvent();
+  const bg = document.getElementById("background");
+  const log = document.getElementById("log");
+  const openBtn = document.getElementById("openTreasure");
+
+  if (result) {
+    bg.src = `background_treasure_${result}.png`;
+    log.innerText = `宝箱（${result}）を発見した！`;
+    openBtn.style.display = "inline";
+  } else {
+    bg.src = "images/backgrounds/fork.png";
+    log.innerText = "何も見つからなかった。";
+    openBtn.style.display = "none";
+  }
 });
 
-document.getElementById("back").addEventListener("click", () => {
-  player.location = Math.max(0, player.location - 100);
-  log("戻った！");
-});
-
-document.getElementById("attack").addEventListener("click", () => {
-  log("攻撃した！");
-});
-
-document.getElementById("item").addEventListener("click", () => {
-  log("アイテムを使った！");
-});
-
-document.getElementById("skill").addEventListener("click", () => {
-  showSkillOptions();
+document.getElementById("openTreasure").addEventListener("click", () => {
+  const log = document.getElementById("log");
+  log.innerText = "宝箱を開いた！中身を取得した！（仮）";
+  document.getElementById("openTreasure").style.display = "none";
 });
