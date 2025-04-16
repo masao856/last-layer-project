@@ -7,7 +7,7 @@ export function spawnEnemy() {
     name: "ゾンビ",
     hp: 18,
     maxHp: 18,
-    weak: "light",     // 英語コードに統一
+    weak: "light",
     resist: "poison"
   };
   setCurrentEnemy(enemy);
@@ -27,11 +27,20 @@ export function useSkill(skill) {
   } else if (skill.type === "attack") {
     if (!currentEnemy) return logMessage("敵がいない！");
 
-    let dmg = 10; // デフォルトダメージ
+    // ログ出力で確認
+    console.log("skill.attribute:", skill.attribute);
+    console.log("enemy.weak:", currentEnemy.weak);
+    console.log("enemy.resist:", currentEnemy.resist);
+
+    let dmg = 10; // 通常ダメージ
     if (currentEnemy.weak === skill.attribute) {
       dmg = skill.power;
+      console.log("→ 弱点一致！");
     } else if (currentEnemy.resist === skill.attribute) {
       dmg = 5;
+      console.log("→ 耐性一致！");
+    } else {
+      console.log("→ 通常属性");
     }
 
     currentEnemy.hp -= dmg;
