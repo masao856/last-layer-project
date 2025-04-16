@@ -1,21 +1,26 @@
-// 最小限の動作コード（進むだけでも動作チェック用）
+
+export let player = { location: 0 };
+export let currentEnemy = null;
+
+const log = document.getElementById("log");
+
+function logMessage(msg) {
+  log.innerText = msg;
+}
+
 document.getElementById("move").addEventListener("click", () => {
-  const log = document.getElementById("log");
-  log.innerText = "進んだ！（動作確認OK）";
+  if (currentEnemy) {
+    logMessage("敵がまだいる！");
+    return;
+  }
+  player.location += 50;
+  logMessage("進んだ！現在地：" + player.location + "m");
 });
-document.getElementById("attack").addEventListener("click", () => {
-  const log = document.getElementById("log");
-  log.innerText = "攻撃した！（動作確認OK）";
-});
+
 document.getElementById("back").addEventListener("click", () => {
-  const log = document.getElementById("log");
-  log.innerText = "戻った！（動作確認OK）";
+  logMessage("街に戻った！");
 });
-document.getElementById("item").addEventListener("click", () => {
-  const log = document.getElementById("log");
-  log.innerText = "アイテムを使った！（動作確認OK）";
-});
-document.getElementById("skill").addEventListener("click", () => {
-  const log = document.getElementById("log");
-  log.innerText = "スキルを使った！（動作確認OK）";
+
+document.getElementById("attack").addEventListener("click", () => {
+  logMessage("攻撃した！");
 });
