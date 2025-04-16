@@ -1,1 +1,1 @@
-// battle.js placeholder - will be replaced by proper content
+// dummy file for now
