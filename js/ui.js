@@ -1,4 +1,9 @@
-export function updatePlayerStats() {
-  const stats = document.getElementById("player-stats");
-  stats.innerText = `HP: ${player.hp} / ${player.hp}　MP: ${player.mp} / ${player.mp}　Gold: ${player.gold}`;
+import { player } from './state.js';
+
+export function logMessage(text) {
+  document.getElementById("log").innerText = text;
+}
+
+export function updateStats() {
+  document.getElementById("player-stats").innerText = `Gold: ${player.gold}`;
 }

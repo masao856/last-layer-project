@@ -1,24 +1,32 @@
-import { rollTreasureEvent } from './event.js';
+import { player, inventory } from './state.js';
+import { updateStats, logMessage } from './ui.js';
 
-document.getElementById("move").addEventListener("click", () => {
-  const result = rollTreasureEvent();
-  const bg = document.getElementById("background");
-  const log = document.getElementById("log");
-  const openBtn = document.getElementById("openTreasure");
+document.getElementById("openShop").addEventListener("click", () => {
+  document.getElementById("shop").style.display = "block";
+});
 
-  if (result) {
-    bg.src = `background_treasure_${result}.png`;
-    log.innerText = `宝箱（${result}）を発見した！`;
-    openBtn.style.display = "inline";
+window.closeShop = function() {
+  document.getElementById("shop").style.display = "none";
+};
+
+window.buy = function(itemName) {
+  const prices = {
+    "テント": 50,
+    "食糧": 20,
+    "ポーション": 30,
+    "エーテル": 40,
+    "簡易魔法陣": 80
+  };
+
+  const price = prices[itemName];
+  if (player.gold >= price) {
+    player.gold -= price;
+    inventory.push(itemName);
+    logMessage(`${itemName} を購入した！`);
+    updateStats();
   } else {
-    bg.src = "images/backgrounds/fork.png";
-    log.innerText = "何も見つからなかった。";
-    openBtn.style.display = "none";
+    logMessage(`ゴールドが足りない！`);
   }
-});
+};
 
-document.getElementById("openTreasure").addEventListener("click", () => {
-  const log = document.getElementById("log");
-  log.innerText = "宝箱を開いた！中身を取得した！（仮）";
-  document.getElementById("openTreasure").style.display = "none";
-});
+updateStats();
