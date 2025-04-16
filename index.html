@@ -1,41 +1,24 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Last Layer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
-      background: #111;
-      color: #fff;
-      font-family: sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-    button {
-      margin: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-    #log {
-      margin-top: 20px;
-      padding: 10px;
-      background: #222;
-    }
+    body { background-color: #111; color: white; text-align: center; font-family: sans-serif; }
+    #scene { margin: 20px auto; width: 100%; max-width: 600px; }
+    button { margin: 10px; padding: 10px 20px; font-size: 1rem; border-radius: 10px; border: none; }
   </style>
 </head>
 <body>
   <h1>Last Layer</h1>
   <div id="log">main.js が読み込まれました！</div>
-  <div>
-    <button id="move">進む</button>
-    <button id="back">戻る</button>
-    <button id="attack">攻撃</button>
-    <button id="item">アイテム</button>
-    <button id="skill">スキル</button>
-  </div>
+  <div id="scene"><img id="background" src="images/backgrounds/fork.png" width="100%" /></div>
+  <button id="move">進む</button>
+  <button id="back">戻る</button>
+  <button id="attack">攻撃</button>
+  <button id="item">アイテム</button>
+  <button id="skill">スキル</button>
   <script type="module" src="js/main.js"></script>
-  <script type="module" src="js/ui.js"></script>
 </body>
 </html>
