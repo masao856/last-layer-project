@@ -26,17 +26,22 @@ export function useSkill(skill) {
     logMessage(`${skill.name} を使ってHPが${skill.power}回復した！`);
   } else if (skill.type === "attack") {
     if (!currentEnemy) return logMessage("敵がいない！");
-    let multiplier = 1.0;
-    if (currentEnemy.weak === skill.attribute) multiplier = 1.5;
-    if (currentEnemy.resist === skill.attribute) multiplier = 0.5;
-    const dmg = Math.floor(skill.power * multiplier);
+
+    let dmg = 10; // デフォルトダメージ（普通）
+    if (currentEnemy.weak === skill.attribute) {
+      dmg = skill.power; // 弱点：そのままの威力
+    } else if (currentEnemy.resist === skill.attribute) {
+      dmg = 5; // 耐性：半減
+    }
+
     currentEnemy.hp -= dmg;
-    logMessage(`${skill.name} を使って敵に${dmg}ダメージを与えた！（属性：${skill.attribute}）`);
+    logMessage(`${skill.name} を使って敵に${dmg}ダメージ！（属性：${skill.attribute}）`);
+
     if (currentEnemy.hp <= 0) {
       logMessage(`敵「${currentEnemy.name}」を倒した！`);
       setCurrentEnemy(null);
     }
   } else if (skill.type === "status") {
-    logMessage(`${skill.name} を使った！敵を状態異常にした！（仮）`);
+    logMessage(`${skill.name} を使って状態異常を与えた！（仮）`);
   }
 }
