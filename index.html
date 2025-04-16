@@ -3,15 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Last Layer - 宝箱対応版</title>
+  <title>Last Layer - ショップ対応</title>
 </head>
 <body>
   <h1>Last Layer</h1>
-  <div id="log">ログ表示領域</div>
-  <img id="background" src="images/backgrounds/fork.png" width="320" />
-  <div id="controls">
-    <button id="move">進む</button>
-    <button id="openTreasure" style="display:none;">宝箱を開ける</button>
+  <div id="log">ログ表示エリア</div>
+  <div id="player-stats">Gold: 0</div>
+  <button id="openShop">ショップへ</button>
+  <div id="shop" style="display:none;">
+    <h2>ショップ</h2>
+    <ul>
+      <li><button onclick="buy('テント')">テント - 50G</button></li>
+      <li><button onclick="buy('食糧')">食糧 - 20G</button></li>
+      <li><button onclick="buy('ポーション')">ポーション - 30G</button></li>
+      <li><button onclick="buy('エーテル')">エーテル - 40G</button></li>
+      <li><button onclick="buy('簡易魔法陣')">簡易魔法陣 - 80G</button></li>
+    </ul>
+    <button onclick="closeShop()">閉じる</button>
   </div>
   <script type="module" src="js/main.js"></script>
 </body>
