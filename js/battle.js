@@ -1,1 +1,3 @@
-// battle.js placeholder
+export function setupBattle() {
+  console.log("Battle system initialized.");
+}
