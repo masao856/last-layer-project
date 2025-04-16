@@ -1,28 +1,17 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Last Layer</title>
-  <style>
-    body { background: #111; color: #fff; font-family: sans-serif; text-align: center; }
-    #scene img { width: 100%; max-width: 320px; }
-    button { margin: 5px; padding: 10px 20px; font-size: 16px; }
-    #log, #player-stats, #enemy-status { margin: 10px auto; max-width: 320px; }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Last Layer - 宝箱対応版</title>
 </head>
 <body>
   <h1>Last Layer</h1>
-  <div id="player-stats">HP: 20 / 20　MP: 10 / 10</div>
-  <div id="enemy-status">敵はいない</div>
-  <div id="log">ゲーム起動中...</div>
-  <div id="scene"><img id="background" src="images/backgrounds/fork.png" alt="背景画像"/></div>
+  <div id="log">ログ表示領域</div>
+  <img id="background" src="images/backgrounds/fork.png" width="320" />
   <div id="controls">
     <button id="move">進む</button>
-    <button id="back">戻る</button>
-    <button id="attack">攻撃</button>
-    <button id="item">アイテム</button>
-    <button id="skill">スキル</button>
+    <button id="openTreasure" style="display:none;">宝箱を開ける</button>
   </div>
   <script type="module" src="js/main.js"></script>
 </body>
