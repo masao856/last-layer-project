@@ -1,4 +1,4 @@
-export function showSkillOptions() {
-  const log = document.getElementById("log");
-  log.innerText = "スキル選択ウィンドウを開く処理（仮）";
+export function updatePlayerStats() {
+  const stats = document.getElementById("player-stats");
+  stats.innerText = `HP: ${player.hp} / ${player.hp}　MP: ${player.mp} / ${player.mp}　Gold: ${player.gold}`;
 }
