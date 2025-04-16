@@ -7,11 +7,11 @@ export function spawnEnemy() {
     name: "ゾンビ",
     hp: 18,
     maxHp: 18,
-    weak: "light",
+    weak: "fire",
     resist: "poison"
   };
   setCurrentEnemy(enemy);
-  logMessage(`敵「${enemy.name}」が現れた！（HP: ${enemy.hp}）`);
+  logMessage(`敵「${enemy.name}」が現れた！（HP: ${enemy.hp} / 弱点: ${enemy.weak}）`);
 }
 
 export function useSkill(skill) {
@@ -27,12 +27,12 @@ export function useSkill(skill) {
   } else if (skill.type === "attack") {
     if (!currentEnemy) return logMessage("敵がいない！");
 
-    // ログ出力で確認
+    // 属性比較ログ出力
     console.log("skill.attribute:", skill.attribute);
     console.log("enemy.weak:", currentEnemy.weak);
     console.log("enemy.resist:", currentEnemy.resist);
 
-    let dmg = 10; // 通常ダメージ
+    let dmg = 10;
     if (currentEnemy.weak === skill.attribute) {
       dmg = skill.power;
       console.log("→ 弱点一致！");
