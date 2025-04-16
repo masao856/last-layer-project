@@ -1,10 +1,1 @@
-import { initializeGame } from './state.js';
-import { setupUI } from './ui.js';
-import { setupBattle } from './battle.js';
-
-document.addEventListener("DOMContentLoaded", () => {
-  initializeGame();
-  setupUI();
-  setupBattle();
-  console.log("main.js loaded");
-});
+// main.js placeholder - will be replaced by proper content
