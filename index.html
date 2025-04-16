@@ -1,26 +1,12 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Last Layer - ショップ対応</title>
-</head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>アイテム使用</title></head>
 <body>
-  <h1>Last Layer</h1>
+  <h1>アイテム画面</h1>
   <div id="log">ログ表示エリア</div>
-  <div id="player-stats">Gold: 0</div>
-  <button id="openShop">ショップへ</button>
-  <div id="shop" style="display:none;">
-    <h2>ショップ</h2>
-    <ul>
-      <li><button onclick="buy('テント')">テント - 50G</button></li>
-      <li><button onclick="buy('食糧')">食糧 - 20G</button></li>
-      <li><button onclick="buy('ポーション')">ポーション - 30G</button></li>
-      <li><button onclick="buy('エーテル')">エーテル - 40G</button></li>
-      <li><button onclick="buy('簡易魔法陣')">簡易魔法陣 - 80G</button></li>
-    </ul>
-    <button onclick="closeShop()">閉じる</button>
-  </div>
+  <div id="player-stats">HP: 20/20　MP: 10/10　Gold: 100</div>
+  <button id="showItems">アイテムを見る</button>
+  <ul id="itemList"></ul>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
