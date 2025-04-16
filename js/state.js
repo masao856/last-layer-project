@@ -1,11 +1,9 @@
 
 export const player = {
-  location: 0,
   hp: 20,
   maxHp: 20,
   mp: 10,
-  maxMp: 10,
-  skills: ["ファイアボール", "ヒール", "サンダー", "ウォータースピア", "シャドウボルト", "ポイズン"]
+  maxMp: 10
 };
 
 export let currentEnemy = null;
