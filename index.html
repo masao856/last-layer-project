@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -5,16 +6,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Last Layer</title>
   <style>
-    body { background-color: #111; color: white; font-family: sans-serif; text-align: center; }
-    #scene { margin: 20px auto; width: 100%; max-width: 500px; }
-    button { margin: 10px; padding: 10px 20px; font-size: 1.1em; }
-    img { width: 100%; height: auto; }
+    body {
+      background-color: #111;
+      color: #fff;
+      text-align: center;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 10px;
+    }
+    #scene {
+      max-width: 320px;
+      margin: 10px auto;
+    }
+    #scene img {
+      width: 100%;
+      height: auto;
+      border: 2px solid #333;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+      font-size: 14px;
+      width: 90px;
+      border: none;
+      border-radius: 4px;
+      background-color: #eee;
+      color: #222;
+    }
+    button:active {
+      background-color: #ccc;
+    }
   </style>
 </head>
 <body>
   <h1>Last Layer</h1>
   <div id="log">main.js が読み込まれました！</div>
-  <div id="scene"><img id="background" src="images/backgrounds/fork.png" /></div>
+  <div id="scene">
+    <img id="background" src="images/backgrounds/fork.png" />
+  </div>
   <button id="move">進む</button>
   <button id="back">戻る</button>
   <button id="attack">攻撃</button>
