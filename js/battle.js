@@ -1,26 +1,26 @@
 
-import { player, currentEnemy, setCurrentEnemy } from './state.js';
 import { logMessage } from './ui.js';
-import { skills } from './skills.js';
 
-export function castSkillByName(name) {
-  const skill = skills[name];
-  if (!skill) return logMessage("無効なスキル！");
-  if (player.mp < skill.cost) return logMessage("MPが足りない！");
+let player = {
+  mp: 10,
+  maxMp: 10,
+  hp: 20,
+  maxHp: 20
+};
 
-  player.mp -= skill.cost;
+export function useSkill(skill) {
+  if (player.mp < skill.mpCost) {
+    logMessage("MPが足りない！");
+    return;
+  }
+  player.mp -= skill.mpCost;
 
-  if (skill.type === "heal") {
+  if (skill.type === "attack") {
+    logMessage(`${skill.name} を使った！ ${skill.attribute}属性の攻撃！（仮）`);
+  } else if (skill.type === "heal") {
     player.hp = Math.min(player.maxHp, player.hp + skill.power);
-    logMessage(`${name} を使った！HPが回復した！`);
-  } else if (skill.type === "attack") {
-    if (!currentEnemy) return logMessage("敵がいない！");
-    logMessage(`${name} を放った！${skill.attribute}属性の攻撃！`);
-    // 敵に属性処理とか追加予定
-    setCurrentEnemy(null); // ダミーで即撃破
+    logMessage(`${skill.name} を使ってHPが回復した！（+${skill.power}）`);
   } else if (skill.type === "status") {
-    logMessage(`${name} を使った！敵に状態異常を与えた！`);
+    logMessage(`${skill.name} を使って状態異常を付与！（仮）`);
   }
 }
-
-window.castSkillByName = castSkillByName;
