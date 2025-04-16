@@ -1,9 +1,44 @@
-export const skills = [
-  { name: "ファイアボール", type: "attack", element: "fire", power: 15, mp: 4 },
-  { name: "ウォータースピア", type: "attack", element: "water", power: 14, mp: 4 },
-  { name: "サンダー", type: "attack", element: "lightning", power: 13, mp: 4 },
-  { name: "ヒール", type: "heal", element: "light", power: 12, mp: 3 },
-  { name: "シャドウボルト", type: "attack", element: "dark", power: 14, mp: 4 },
-  { name: "ポイズン", type: "status", element: "poison", power: 0, mp: 3 },
-  { name: "スラッシュ", type: "attack", element: "none", power: 10, mp: 0 }
-];
+export const skills = {
+  fireball: {
+    name: "ファイアボール",
+    element: "fire",
+    power: 15,
+    cost: 4,
+    type: "attack"
+  },
+  waterspear: {
+    name: "ウォータースピア",
+    element: "water",
+    power: 14,
+    cost: 4,
+    type: "attack"
+  },
+  thunder: {
+    name: "サンダー",
+    element: "lightning",
+    power: 13,
+    cost: 4,
+    type: "attack"
+  },
+  heal: {
+    name: "ヒール",
+    element: "light",
+    power: -10,
+    cost: 3,
+    type: "heal"
+  },
+  shadowbolt: {
+    name: "シャドウボルト",
+    element: "dark",
+    power: 12,
+    cost: 4,
+    type: "attack"
+  },
+  poison: {
+    name: "ポイズン",
+    element: "poison",
+    power: 5,
+    cost: 3,
+    type: "status"
+  }
+};
