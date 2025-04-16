@@ -1,42 +1,21 @@
-import { player, currentEnemy, setCurrentEnemy } from './state.js';
-import { logMessage, updateBackground, showReturnOption } from './ui.js';
-import { encounterEnemy } from './battle.js';
-
-const scene = document.getElementById("scene");
-
-const backgroundPatterns = [
-  { end: 999, images: ["images/backgrounds/fork.png"] },
-  { end: 1499, images: ["images/backgrounds/layer2_a.png", "images/backgrounds/layer2_b.png"] },
-  { end: 4499, images: ["images/backgrounds/layer3_a.png", "images/backgrounds/layer3_b.png", "images/backgrounds/layer3_c.png"] },
-];
-
-const returnPoints = [1000, 1500, 4500];
-
+// 最小限の動作コード（進むだけでも動作チェック用）
 document.getElementById("move").addEventListener("click", () => {
-  if (currentEnemy) {
-    logMessage("敵がまだいる！");
-    return;
-  }
-
-  player.location += 50;
-  updateBackground(player.location, backgroundPatterns);
-
-  if (returnPoints.includes(player.location)) {
-    logMessage("魔法陣を見つけた！ここから街へ戻れる！");
-    showReturnOption();
-    return;
-  }
-
-  if (Math.random() < 0.3) {
-    encounterEnemy();
-  } else {
-    logMessage(`${player.location}m地点を進んだ...`);
-  }
+  const log = document.getElementById("log");
+  log.innerText = "進んだ！（動作確認OK）";
 });
-
+document.getElementById("attack").addEventListener("click", () => {
+  const log = document.getElementById("log");
+  log.innerText = "攻撃した！（動作確認OK）";
+});
 document.getElementById("back").addEventListener("click", () => {
-  player.location = 0;
-  updateBackground(player.location, backgroundPatterns);
-  logMessage("街へ戻った。");
+  const log = document.getElementById("log");
+  log.innerText = "戻った！（動作確認OK）";
 });
-
+document.getElementById("item").addEventListener("click", () => {
+  const log = document.getElementById("log");
+  log.innerText = "アイテムを使った！（動作確認OK）";
+});
+document.getElementById("skill").addEventListener("click", () => {
+  const log = document.getElementById("log");
+  log.innerText = "スキルを使った！（動作確認OK）";
+});
