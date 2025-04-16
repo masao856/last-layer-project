@@ -1,1 +1,1 @@
-console.log("battle.js loaded");
+// 戦闘処理のダミー

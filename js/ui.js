@@ -1,1 +1,1 @@
-console.log("ui.js loaded");
+// UI処理のダミー

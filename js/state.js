@@ -1,1 +1,1 @@
-console.log("state.js loaded");
+// ゲーム状態処理のダミー
