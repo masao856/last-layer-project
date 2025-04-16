@@ -1,1 +1,1 @@
-// skills.js 内容（省略）
+// skills.js placeholder

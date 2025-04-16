@@ -1,1 +1,1 @@
-// ui.js 内容（省略）
+// ui.js placeholder

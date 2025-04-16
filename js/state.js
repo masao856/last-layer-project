@@ -1,1 +1,1 @@
-// state.js 内容（省略）
+// state.js placeholder

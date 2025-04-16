@@ -1,1 +1,1 @@
-// main.js 内容（省略）
+// main.js placeholder

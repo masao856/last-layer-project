@@ -1,1 +1,1 @@
-// battle.js 内容（省略）
+// battle.js placeholder
