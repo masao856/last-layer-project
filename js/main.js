@@ -1,33 +1,24 @@
-
-import { player } from './state.js';
-import { updateBackground } from './ui.js';
-
-function log(msg) {
-  document.getElementById("log").innerText = msg;
-}
+import { initState } from './state.js';
+import { showSkillOptions } from './ui.js';
+import './battle.js';
 
 document.getElementById("move").addEventListener("click", () => {
-  player.location += 100;
-  updateBackground();
-  log("進んだ！");
+  logMessage("進むコマンドが押されました！");
 });
-
 document.getElementById("back").addEventListener("click", () => {
-  if (player.location >= 100) {
-    player.location -= 100;
-  }
-  updateBackground();
-  log("戻った！");
+  logMessage("戻るコマンドが押されました！");
 });
-
 document.getElementById("attack").addEventListener("click", () => {
-  log("攻撃した！");
+  logMessage("攻撃コマンドが押されました！");
 });
 document.getElementById("item").addEventListener("click", () => {
-  log("アイテムを使った！");
+  logMessage("アイテムコマンドが押されました！");
 });
 document.getElementById("skill").addEventListener("click", () => {
-  log("スキルを使った！");
+  showSkillOptions();
 });
 
-updateBackground();
+function logMessage(text) {
+  const log = document.getElementById("log");
+  log.innerText = text;
+}
