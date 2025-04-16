@@ -1,7 +1,4 @@
-import { renderItemList, updateStats } from './ui.js';
-
-document.getElementById("showItems").addEventListener("click", () => {
-  renderItemList();
-});
+import { updateStats, logMessage } from './ui.js';
 
 updateStats();
+logMessage("仲間と共に出発した！");
