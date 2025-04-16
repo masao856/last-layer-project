@@ -1,8 +1,10 @@
 export const player = {
   name: "主人公",
-  hp: 20,
+  icon: "player_icon.png",
+  job: "戦士",
+  hp: 25,
   mp: 10,
-  maxHp: 20,
+  maxHp: 25,
   maxMp: 10,
   gold: 100
 };
@@ -10,16 +12,20 @@ export const player = {
 export const allies = [
   {
     name: "リュカ",
-    hp: 18,
-    mp: 8,
-    maxHp: 18,
-    maxMp: 8
+    icon: "ally1_icon.png",
+    job: "戦士",
+    hp: 20,
+    mp: 5,
+    maxHp: 20,
+    maxMp: 5
   },
   {
     name: "マリナ",
-    hp: 12,
-    mp: 15,
-    maxHp: 12,
-    maxMp: 15
+    icon: "ally2_icon.png",
+    job: "魔法使い",
+    hp: 15,
+    mp: 20,
+    maxHp: 15,
+    maxMp: 20
   }
 ];
