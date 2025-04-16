@@ -2,18 +2,13 @@
 import { player, currentEnemy, setEnemy } from './state.js';
 
 const scene = document.getElementById("scene");
-
-// 各層の背景パターン定義
 const backgroundPatterns = [
-  { end: 999, images: ["images/backgrounds/fork.png"] }, // 第1層：固定背景
-  { end: 1499, images: ["images/backgrounds/layer2_a.png", "images/backgrounds/layer2_b.png"] }, // 第2層
-  { end: 4499, images: ["images/backgrounds/layer3_a.png", "images/backgrounds/layer3_b.png", "images/backgrounds/layer3_c.png"] } // 第3層
+  { end: 999, images: ["images/backgrounds/fork.png"] },
+  { end: 1499, images: ["images/backgrounds/layer2_a.png", "images/backgrounds/layer2_b.png"] },
+  { end: 4499, images: ["images/backgrounds/layer3_a.png", "images/backgrounds/layer3_b.png", "images/backgrounds/layer3_c.png"] }
 ];
-
-// 層の入口での帰還ポイント（進行距離）
 const returnPoints = [1000, 1500, 4500];
 
-// プレイヤーが前進する
 document.getElementById("move").addEventListener("click", () => {
   if (currentEnemy) {
     logMessage("敵がまだいる！");
@@ -21,17 +16,14 @@ document.getElementById("move").addEventListener("click", () => {
   }
 
   player.location += 50;
-
-  // 背景の更新
   updateBackground(player.location);
 
-  // 帰還ポイントチェック
   if (returnPoints.includes(player.location)) {
     logMessage("魔法陣を見つけた！ここから街に帰還できます。");
+    showReturnOption();
     return;
   }
 
-  // 通常敵出現
   const enemies = [
     { name: "影", hp: 10, atk: 4, def: 1, img: "images/shadow.png" },
     { name: "野盗", hp: 14, atk: 6, def: 2, img: "images/bandit.png" },
@@ -46,7 +38,6 @@ document.getElementById("move").addEventListener("click", () => {
   logMessage(`${enemy.name} が現れた！`);
 });
 
-// 攻撃ボタン
 document.getElementById("attack").addEventListener("click", () => {
   if (!currentEnemy) {
     logMessage("敵がいない！");
@@ -65,7 +56,6 @@ document.getElementById("attack").addEventListener("click", () => {
   }
 });
 
-// 背景切り替えロジック
 function updateBackground(location) {
   for (const layer of backgroundPatterns) {
     if (location <= layer.end) {
@@ -74,7 +64,7 @@ function updateBackground(location) {
       return;
     }
   }
-  scene.src = "images/backgrounds/fork.png"; // それ以外は通路背景
+  scene.src = "images/backgrounds/fork.png";
 }
 
 function logMessage(text) {
@@ -96,4 +86,25 @@ function showEnemyImage(path) {
 function clearEnemyImage() {
   const container = document.getElementById("enemyImage");
   if (container) container.innerHTML = "";
+}
+
+function showReturnOption() {
+  let btn = document.getElementById("returnBtn");
+  if (!btn) {
+    btn = document.createElement("button");
+    btn.id = "returnBtn";
+    btn.innerText = "街に帰る";
+    btn.style.margin = "10px";
+    btn.onclick = () => {
+      player.location = 0;
+      player.hp = player.maxHp;
+      player.mp = player.maxMp;
+      setEnemy(null);
+      scene.src = "images/backgrounds/safe_zone_background.png";
+      logMessage("街に帰還した！HPとMPが全回復した！");
+      const oldBtn = document.getElementById("returnBtn");
+      if (oldBtn) oldBtn.remove();
+    };
+    document.body.appendChild(btn);
+  }
 }
