@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Last Layer - フルUI</title>
+  <title>Last Layer - 敵調整版</title>
   <style>
     body { margin: 0; font-family: sans-serif; background: #000; color: #fff; }
     #backgroundContainer { width: 100%; height: 220px; background-size: cover; background-position: center; }
@@ -64,6 +64,21 @@ function logEvent(text) {
   log.appendChild(entry);
   log.scrollTop = log.scrollHeight;
 }
+
+const layerEnemies = {1: ['shadow.png', 'bandit.png', 'beastman_bandit.png', 'zombie.png', 'rotted_rat.png', 'weak_slime.png'], 2: ['enemy_mummy.png', 'skeleton_soldier.png', 'cursed_shadow.png', 'ghost_grave_robber.png', 'enemy_floating_soul.png'], 3: ['sand_snake.png', 'lizardman_sand.png', 'karakara_mummy.png', 'sunamiri_no_mouja.png', 'isekai_no_saikutsusha.png']};
+const bossEvents = {500: ['黒鉄の鎧（中ボス）出現', 'armor_knight.png'], 1000: ['堕ちた王（ボス）出現', 'fallen_king.png'], 1250: ['叫びの鎧（中ボス）出現', 'cursed_armor_screaming.png'], 1500: ['墓守の怨霊（ボス）出現', 'gravekeeper_wraith.png'], 3000: ['幻王ザナドゥ（前半ラスボス）出現', 'zanadu.png']};
+
+function getLayer(distance) {
+  if (distance < 1000) return 1;
+  if (distance < 1500) return 2;
+  return 3;
+}
+
+function randomEnemyFromLayer(layer) {
+  const list = layerEnemies[layer];
+  return list[Math.floor(Math.random() * list.length)];
+}
+
 function goForward() {
   currentDistance += 50;
   logEvent(`進んだ（${currentDistance}m）`);
@@ -74,14 +89,24 @@ function goBack() {
   logEvent(`戻った（${currentDistance}m）`);
   checkScene();
 }
+
 function checkScene() {
   if (currentDistance < 1000) setBackgroundImage("fork.png");
   else if (currentDistance < 1500) setBackgroundImage("layer2_a.png");
   else setBackgroundImage("layer3_a.png");
 
+  if (bossEvents[currentDistance]) {
+    const [text, image] = bossEvents[currentDistance];
+    logEvent(`[ボス] ${text}`);
+    setEnemyImage(image);
+    return;
+  }
+
   if (Math.random() < 0.25) {
-    setEnemyImage("skeleton_soldier.png");
-    logEvent("敵が現れた！（スケルトン・ソルジャー）");
+    const layer = getLayer(currentDistance);
+    const enemy = randomEnemyFromLayer(layer);
+    setEnemyImage(enemy);
+    logEvent(`敵が現れた！（${enemy.replace(".png", "")}）`);
   }
 }
 setBackgroundImage("fork.png");
