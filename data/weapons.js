@@ -4,21 +4,24 @@ const baseWeapons = [
     "name": "ショートソード",
     "type": "片手",
     "power": 5,
-    "effects": []
+    "effects": [],
+    "rarity": "common"
   },
   {
     "id": "long_sword",
     "name": "ロングソード",
     "type": "片手",
     "power": 6,
-    "effects": []
+    "effects": [],
+    "rarity": "common"
   },
   {
     "id": "dagger",
     "name": "ダガー",
     "type": "片手",
     "power": 4,
-    "effects": []
+    "effects": [],
+    "rarity": "common"
   },
   {
     "id": "stiletto",
@@ -26,8 +29,13 @@ const baseWeapons = [
     "type": "片手",
     "power": 4,
     "effects": [
-      "素早さ+1"
-    ]
+      {
+        "type": "statBoost",
+        "target": "speed",
+        "value": 1
+      }
+    ],
+    "rarity": "uncommon"
   },
   {
     "id": "iron_mace",
@@ -35,8 +43,12 @@ const baseWeapons = [
     "type": "片手",
     "power": 5,
     "effects": [
-      "スタン"
-    ]
+      {
+        "type": "statusEffect",
+        "value": "スタン"
+      }
+    ],
+    "rarity": "common"
   },
   {
     "id": "steel_claw",
@@ -44,29 +56,36 @@ const baseWeapons = [
     "type": "片手",
     "power": 4,
     "effects": [
-      "連撃"
-    ]
+      {
+        "type": "multiHit",
+        "value": true
+      }
+    ],
+    "rarity": "uncommon"
   },
   {
     "id": "bastard_sword",
     "name": "バスタードソード",
     "type": "両手",
     "power": 8,
-    "effects": []
+    "effects": [],
+    "rarity": "common"
   },
   {
     "id": "halberd",
     "name": "ハルバード",
     "type": "両手",
     "power": 9,
-    "effects": []
+    "effects": [],
+    "rarity": "common"
   },
   {
     "id": "great_axe",
     "name": "グレートアックス",
     "type": "両手",
     "power": 10,
-    "effects": []
+    "effects": [],
+    "rarity": "uncommon"
   },
   {
     "id": "war_hammer",
@@ -74,8 +93,12 @@ const baseWeapons = [
     "type": "両手",
     "power": 8,
     "effects": [
-      "防御無視"
-    ]
+      {
+        "type": "ignoreDefense",
+        "value": true
+      }
+    ],
+    "rarity": "uncommon"
   },
   {
     "id": "katana",
@@ -83,8 +106,12 @@ const baseWeapons = [
     "type": "両手",
     "power": 7,
     "effects": [
-      "クリティカル率+2"
-    ]
+      {
+        "type": "critRate",
+        "value": 2
+      }
+    ],
+    "rarity": "rare"
   },
   {
     "id": "black_iron_blade",
@@ -92,29 +119,37 @@ const baseWeapons = [
     "type": "両手",
     "power": 12,
     "effects": [
-      "素早さ-1"
-    ]
+      {
+        "type": "statBoost",
+        "target": "speed",
+        "value": -1
+      }
+    ],
+    "rarity": "rare"
   },
   {
     "id": "short_bow",
     "name": "ショートボウ",
     "type": "遠距離",
     "power": 5,
-    "effects": []
+    "effects": [],
+    "rarity": "common"
   },
   {
     "id": "crossbow",
     "name": "クロスボウ",
     "type": "遠距離",
     "power": 6,
-    "effects": []
+    "effects": [],
+    "rarity": "common"
   },
   {
     "id": "long_bow",
     "name": "長弓",
     "type": "遠距離",
     "power": 7,
-    "effects": []
+    "effects": [],
+    "rarity": "uncommon"
   },
   {
     "id": "fire_staff",
@@ -123,7 +158,8 @@ const baseWeapons = [
     "power": 6,
     "element": "火",
     "effects": [],
-    "grantsSkill": "ファイアボール"
+    "grantsSkill": "ファイアボール",
+    "rarity": "uncommon"
   },
   {
     "id": "ice_tome",
@@ -131,9 +167,13 @@ const baseWeapons = [
     "type": "魔法",
     "power": 5,
     "effects": [
-      "凍結"
+      {
+        "type": "statusEffect",
+        "value": "凍結"
+      }
     ],
-    "grantsSkill": "アイスランス"
+    "grantsSkill": "アイスランス",
+    "rarity": "uncommon"
   },
   {
     "id": "thunder_rod",
@@ -142,9 +182,13 @@ const baseWeapons = [
     "power": 6,
     "element": "雷",
     "effects": [
-      "マヒ"
+      {
+        "type": "statusEffect",
+        "value": "マヒ"
+      }
     ],
-    "grantsSkill": "サンダー"
+    "grantsSkill": "サンダー",
+    "rarity": "uncommon"
   },
   {
     "id": "tentacle_whip",
@@ -152,8 +196,12 @@ const baseWeapons = [
     "type": "特殊",
     "power": 6,
     "effects": [
-      "吸収"
-    ]
+      {
+        "type": "drainHP",
+        "value": 0.2
+      }
+    ],
+    "rarity": "rare"
   },
   {
     "id": "cursed_blade",
@@ -161,28 +209,46 @@ const baseWeapons = [
     "type": "特殊",
     "power": 9,
     "effects": [
-      "自傷"
-    ]
+      {
+        "type": "selfDamage",
+        "value": 0.1
+      }
+    ],
+    "rarity": "cursed"
   },
   {
     "id": "gun_device",
     "name": "銃型装置",
     "type": "特殊",
     "power": 7,
-    "accuracy": 100,
-    "effects": []
+    "effects": [
+      {
+        "type": "accuracy",
+        "value": 100
+      }
+    ],
+    "rarity": "rare"
   },
   {
     "id": "muramasa",
     "name": "村正",
     "type": "両手",
     "power": 24,
-    "effects": [
-      "全体攻撃",
-      "クリティカル率100%",
-      "毎ターンHP30%ダメージ"
-    ],
     "element": "火",
+    "effects": [
+      {
+        "type": "aoe",
+        "value": true
+      },
+      {
+        "type": "critRate",
+        "value": 100
+      },
+      {
+        "type": "hpPenalty",
+        "value": 0.3
+      }
+    ],
     "rarity": "legendary"
   },
   {
@@ -192,7 +258,11 @@ const baseWeapons = [
     "power": 22,
     "element": "雷",
     "effects": [
-      "高火力"
+      {
+        "type": "statBoost",
+        "target": "attack",
+        "value": 5
+      }
     ],
     "rarity": "legendary"
   },
@@ -201,9 +271,13 @@ const baseWeapons = [
     "name": "神殺しの大剣",
     "type": "両手",
     "power": 30,
-    "element": "null",
+    "element": "無",
     "effects": [
-      "超高火力"
+      {
+        "type": "statBoost",
+        "target": "attack",
+        "value": 10
+      }
     ],
     "rarity": "epic"
   },
@@ -214,9 +288,20 @@ const baseWeapons = [
     "power": 999,
     "element": "闇",
     "effects": [
-      "全体攻撃",
-      "防御+999",
-      "毎ターンHP50回復"
+      {
+        "type": "aoe",
+        "value": true
+      },
+      {
+        "type": "statBoost",
+        "target": "defense",
+        "value": 999
+      },
+      {
+        "type": "regen",
+        "target": "hp",
+        "value": 50
+      }
     ],
     "rarity": "debug",
     "unlockCondition": "ショップ購入順番イベント"
