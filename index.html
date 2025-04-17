@@ -2,152 +2,148 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>Last Layer - UI完全統合版</title>
+  <meta charset="UTF-8" />
+  <title>Last Layer - 完全統合版</title>
   <style>
-    body { margin: 0; font-family: sans-serif; background: #000; color: #fff; }
-    #backgroundContainer { width: 100%; height: 220px; background-size: cover; background-position: center; }
-    #enemyImage { max-height: 160px; margin: 10px auto; display: block; }
-    #log { background: #222; padding: 10px; height: 120px; overflow-y: auto; font-size: 0.9em; margin: 0 10px; }
-    .button-group { margin: 10px; }
-    button { margin: 4px; }
-    .status-block, .party-block { padding: 10px; margin: 10px; background: #111; border: 1px solid #444; }
-    .party-member { display: inline-block; width: 30%; vertical-align: top; padding: 4px; }
-    .bar { height: 10px; background: #444; margin: 4px 0; }
-    .bar-inner { height: 10px; background: lime; }
-    #inventory { padding: 4px 10px; font-size: 0.9em; }
-    #skillMenu { display: none; padding: 6px 10px; background: #111; border-top: 1px solid #444; }
-    .status-labels { font-size: 0.8em; color: #f88; }
+    body { font-family: sans-serif; background: #000; color: #fff; margin: 0; }
+    #background { width: 100%; height: 200px; background-size: cover; background-position: center; }
+    #enemyImage { max-height: 160px; display: block; margin: 10px auto; }
+    #controls, #log, #combat { padding: 10px; }
+    #log { background: #111; height: 160px; overflow-y: auto; margin-top: 10px; }
+    button { margin: 6px; }
+    #combat { display: none; background: #222; }
   </style>
 </head>
 <body>
 
-<div id="backgroundContainer"></div>
-<img id="enemyImage" src="" alt="敵画像">
+<div id="background"></div>
+<img id="enemyImage" src="" alt="" style="display:none;" />
 
-<div class="status-block">
-  <strong>プレイヤー：勇者</strong>
-  <div>HP: <span id="playerHp">100</span> / MP: <span id="playerMp">50</span></div>
-  <div class="bar"><div id="playerHpBar" class="bar-inner" style="width: 100%;"></div></div>
-  <div class="bar" style="background:#335;"><div id="playerMpBar" class="bar-inner" style="width: 100%; background: #66f;"></div></div>
-  <div class="status-labels" id="playerStatus">状態異常: なし</div>
+<div id="controls">
+  <div>現在地: <span id="distance">0</span>m</div>
+  <button onclick="advance()">進む</button>
+  <button onclick="retreat()">戻る</button>
 </div>
 
-<div class="party-block">
-  <strong>仲間</strong><br>
-  <div class="party-member">戦士<br>HP: 100<br>MP: 20</div>
-  <div class="party-member">魔法使い<br>HP: 80<br>MP: 60</div>
-</div>
-
-<div class="button-group">
+<div id="combat">
+  <div><strong>勇者</strong> HP: <span id="playerHp">100</span> / MP: <span id="playerMp">50</span></div>
   <button onclick="attack()">攻撃</button>
-  <button onclick="toggleSkillMenu()">スキル</button>
+  <button onclick="useSkill()">スキル</button>
   <button onclick="defend()">防御</button>
-  <button onclick="useItem()">アイテム</button>
-</div>
-
-<div id="skillMenu">
-  スキル選択：
-  <select id="skillSelect">
-    <option value="fireball">ファイアボール</option>
-    <option value="heal">ヒール</option>
-    <option value="paralyze">パラライズ</option>
-  </select>
-  <button onclick="castSkill()">使う</button>
-</div>
-
-<div class="button-group">
-  <button onclick="goForward()">進む</button>
-  <button onclick="goBack()">戻る</button>
-</div>
-
-<div class="status-block">
-  <strong>所持アイテム</strong>
-  <div id="inventory">ポーション ×2</div>
+  <button onclick="escape()">逃げる</button>
 </div>
 
 <div id="log"></div>
 
 <script>
-let player = {
-  hp: 100,
-  maxHp: 100,
-  mp: 50,
-  maxMp: 50,
-  status: "なし",
-  inventory: ["ポーション", "ポーション"]
-};
+let distance = 0;
+let inCombat = false;
+let player = { hp: 100, mp: 50, maxHp: 100, maxMp: 50 };
+let enemy = null;
 
-function updateStatusUI() {
-  document.getElementById("playerHp").textContent = player.hp;
-  document.getElementById("playerMp").textContent = player.mp;
-  document.getElementById("playerHpBar").style.width = (player.hp / player.maxHp * 100) + "%";
-  document.getElementById("playerMpBar").style.width = (player.mp / player.maxMp * 100) + "%";
-  document.getElementById("playerStatus").textContent = "状態異常: " + player.status;
-  document.getElementById("inventory").textContent = player.inventory.join(" × ") || "なし";
+function updateBackground() {
+  let bg = "";
+  if (distance < 1000) bg = "fork.png";
+  else if (distance < 1500) bg = "layer2_a.png";
+  else bg = "layer3_a.png";
+  document.getElementById("background").style.backgroundImage = `url('images/backgrounds/${bg}')`;
+}
+function updateDistance() {
+  document.getElementById("distance").textContent = distance;
+  updateBackground();
+}
+function log(msg) {
+  const entry = document.createElement("div");
+  entry.textContent = msg;
+  document.getElementById("log").appendChild(entry);
+  document.getElementById("log").scrollTop = document.getElementById("log").scrollHeight;
+}
+function advance() {
+  if (inCombat) return log("戦闘中は移動できない！");
+  distance += 50;
+  log(`${distance}m に進んだ`);
+  triggerEvent();
+  updateDistance();
+}
+function retreat() {
+  if (inCombat) return log("戦闘中は移動できない！");
+  distance = Math.max(0, distance - 50);
+  log(`${distance}m に戻った`);
+  updateDistance();
 }
 
-function logMsg(msg) {
-  const div = document.createElement("div");
-  div.textContent = msg;
-  document.getElementById("log").appendChild(div);
-  document.getElementById("log").scrollTop = document.getElementById("log").scrollHeight;
+function triggerEvent() {
+  const r = Math.random();
+  if (r < 0.05) {
+    log("[イベント] 不気味な泉で癒された。HP/MPが全回復！");
+    player.hp = player.maxHp;
+    player.mp = player.maxMp;
+    updateStatus();
+  } else if (r < 0.10) {
+    log("[イベント] 宝箱発見！ポーションを手に入れた！");
+  } else if (r < 0.15) {
+    log("[イベント] 罠にかかった！HPが10減少！");
+    player.hp = Math.max(0, player.hp - 10);
+    updateStatus();
+  } else if (r < 0.40) {
+    startCombat("skeleton_soldier.png", "スケルトン・ソルジャー");
+  }
+}
+
+function updateStatus() {
+  document.getElementById("playerHp").textContent = player.hp;
+  document.getElementById("playerMp").textContent = player.mp;
+}
+
+function startCombat(enemyImage, name) {
+  inCombat = true;
+  enemy = { name: name, hp: 40 };
+  document.getElementById("enemyImage").src = `/last-layer-project/images/${enemyImage}`;
+  document.getElementById("enemyImage").style.display = "block";
+  document.getElementById("combat").style.display = "block";
+  log(`[戦闘] ${name}が現れた！`);
 }
 
 function attack() {
-  logMsg("勇者の攻撃！敵に10ダメージ！");
+  const dmg = 10;
+  enemy.hp -= dmg;
+  log(`[攻撃] ${enemy.name}に${dmg}ダメージ！`);
+  checkEnemy();
 }
-
+function useSkill() {
+  if (player.mp < 10) return log("[スキル] MPが足りない！");
+  const dmg = 20;
+  player.mp -= 10;
+  enemy.hp -= dmg;
+  log(`[スキル] ${enemy.name}に${dmg}ダメージ！`);
+  updateStatus();
+  checkEnemy();
+}
 function defend() {
-  logMsg("勇者は防御の構えをとった！");
+  log("[防御] 構えをとった！");
 }
-
-function toggleSkillMenu() {
-  const menu = document.getElementById("skillMenu");
-  menu.style.display = menu.style.display === "none" ? "block" : "none";
-}
-
-function castSkill() {
-  const skill = document.getElementById("skillSelect").value;
-  if (skill === "fireball") {
-    player.mp -= 10;
-    logMsg("ファイアボール発動！敵に20ダメージ！");
-  } else if (skill === "heal") {
-    player.mp -= 5;
-    const heal = 20;
-    player.hp = Math.min(player.maxHp, player.hp + heal);
-    logMsg("ヒール発動！HPが" + heal + "回復！");
-  } else if (skill === "paralyze") {
-    player.mp -= 8;
-    logMsg("パラライズ発動！敵をまひさせた！");
-  }
-  updateStatusUI();
-  toggleSkillMenu();
-}
-
-function useItem() {
-  const idx = player.inventory.indexOf("ポーション");
-  if (idx !== -1) {
-    player.hp = Math.min(player.maxHp, player.hp + 30);
-    player.inventory.splice(idx, 1);
-    logMsg("ポーションを使った。HPが30回復！");
+function escape() {
+  if (Math.random() < 0.5) {
+    log("[逃走] 成功した！");
+    endCombat();
   } else {
-    logMsg("ポーションがない！");
+    log("[逃走] 失敗！");
   }
-  updateStatusUI();
 }
-
-let currentDistance = 0;
-function goForward() {
-  currentDistance += 50;
-  logMsg("進んだ！（" + currentDistance + "m）");
+function checkEnemy() {
+  if (enemy.hp <= 0) {
+    log(`[戦闘] ${enemy.name}を倒した！`);
+    endCombat();
+  }
 }
-function goBack() {
-  currentDistance = Math.max(0, currentDistance - 50);
-  logMsg("戻った！（" + currentDistance + "m）");
+function endCombat() {
+  inCombat = false;
+  document.getElementById("enemyImage").style.display = "none";
+  document.getElementById("combat").style.display = "none";
+  enemy = null;
 }
-
-updateStatusUI();
+updateDistance();
+updateStatus();
 </script>
 </body>
 </html>
