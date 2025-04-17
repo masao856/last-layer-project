@@ -109,6 +109,12 @@ var enemySpawnTable = {
   <button onclick="escape()">逃げる</button>
 </div>
 
+
+<div id="inventoryPanel" style="padding: 10px; background: #333;">
+  <strong>所持アイテム：</strong>
+  <ul id="inventoryList"></ul>
+</div>
+
 <div id="log"></div>
 
 <script src="js/data/skills.js"></script>
@@ -118,7 +124,10 @@ var enemySpawnTable = {
 // プレイヤー・敵・戦闘状態
 let distance = 0;
 let inCombat = false;
-let player = { name: "勇者", hp: 100, mp: 50, maxHp: 100, maxMp: 50, status: [] };
+let player = {
+  name: "勇者", hp: 100, mp: 50, maxHp: 100, maxMp: 50, status: [],
+  inventory: []
+};
 let midbossDefeated = false;
 let bossDefeated = false;
 let currentMidbossName = "";
@@ -157,12 +166,50 @@ function advance() {
   log(`${distance}m に進んだ`);
   triggerEvent();
   updateDistance();
+
+// ドロップ処理
+function handleDrop() {
+  const itemPool = ["ポーション", "エーテル", "レザーアーマー", "スキル本：ファイアボール"];
+  const r = Math.random();
+  let drop = null; const rItem = Math.random();
+  if (rItem < 0.3) drop = "ポーション";
+  else if (rItem < 0.5) drop = "エーテル";
+  else if (rItem < 0.6) drop = "レザーアーマー";
+  else if (rItem < 0.7) drop = "スキル本：ファイアボール";
+
+  if (drop) {
+    player.inventory.push(drop);
+    log(`[ドロップ] ${drop}を手に入れた！`); renderInventoryList();
+  } else {
+    log("[ドロップ] 何も落とさなかった…");
+  }
+}
+
 }
 function retreat() {
   if (inCombat) return log("戦闘中は移動できない！");
   distance = Math.max(0, distance - 50);
   log(`${distance}m に戻った`);
   updateDistance();
+
+// ドロップ処理
+function handleDrop() {
+  const itemPool = ["ポーション", "エーテル", "レザーアーマー", "スキル本：ファイアボール"];
+  const r = Math.random();
+  let drop = null; const rItem = Math.random();
+  if (rItem < 0.3) drop = "ポーション";
+  else if (rItem < 0.5) drop = "エーテル";
+  else if (rItem < 0.6) drop = "レザーアーマー";
+  else if (rItem < 0.7) drop = "スキル本：ファイアボール";
+
+  if (drop) {
+    player.inventory.push(drop);
+    log(`[ドロップ] ${drop}を手に入れた！`); renderInventoryList();
+  } else {
+    log("[ドロップ] 何も落とさなかった…");
+  }
+}
+
 }
 
 // イベント発生
@@ -172,13 +219,13 @@ function triggerEvent() {
     log("[イベント] 泉！HP/MP全回復！");
     player.hp = player.maxHp;
     player.mp = player.maxMp;
-    updateStatus();
+    updateStatus(); renderInventoryList();
   } else if (r < 0.10) {
     log("[イベント] 宝箱を発見！ポーション入手！");
   } else if (r < 0.15) {
     log("[イベント] 罠にかかった！HPが10減少！");
     player.hp = Math.max(0, player.hp - 10);
-    updateStatus();
+    updateStatus(); renderInventoryList();
   } else if (r < 0.4) {
     const enemyData = getEnemyByDistance(distance);
     startCombat(enemyData.image, enemyData.name);
@@ -208,7 +255,7 @@ function useSkill() {
   player.mp -= 10;
   enemy.hp -= dmg;
   log(`[スキル] ${enemy.name}に${dmg}ダメージ！`);
-  updateStatus();
+  updateStatus(); renderInventoryList();
   checkEnemy();
 }
 function defend() {
@@ -227,6 +274,7 @@ function escape() {
 function checkEnemy() {
   if (enemy.hp <= 0) {
     log(`[戦闘] ${enemy.name}を倒した！`);
+handleDrop();
 if (enemy.name === currentMidbossName) midbossDefeated = true;
 if (enemy.name === currentBossName) bossDefeated = true;
     endCombat();
@@ -290,7 +338,81 @@ function enemyTurn(enemy, player) {
 }
 
 updateDistance();
-updateStatus();
+
+// ドロップ処理
+function handleDrop() {
+  const itemPool = ["ポーション", "エーテル", "レザーアーマー", "スキル本：ファイアボール"];
+  const r = Math.random();
+  let drop = null; const rItem = Math.random();
+  if (rItem < 0.3) drop = "ポーション";
+  else if (rItem < 0.5) drop = "エーテル";
+  else if (rItem < 0.6) drop = "レザーアーマー";
+  else if (rItem < 0.7) drop = "スキル本：ファイアボール";
+
+  if (drop) {
+    player.inventory.push(drop);
+    log(`[ドロップ] ${drop}を手に入れた！`); renderInventoryList();
+  } else {
+    log("[ドロップ] 何も落とさなかった…");
+  }
+}
+
+updateStatus(); renderInventoryList();
+
+// アイテム定義（items.jsから統合）
+const items = [
+  { name: "ポーション", effect: "HP回復", price: 30, sellPrice: 15 },
+  { name: "エーテル", effect: "MP回復", price: 40, sellPrice: 20 },
+  { name: "レザーアーマー", effect: "防御+2", price: 100, sellPrice: 50 },
+  { name: "スキル本：ファイアボール", effect: "スキル習得", price: 150, sellPrice: 75 }
+];
+
+// アイテム使用処理
+function useItem(index) {
+  const item = player.inventory[index];
+  if (!item) return log("[アイテム] 選択エラー");
+
+  const itemData = items.find(i => i.name === item);
+  let effectMsg = "";
+
+  if (!itemData) {
+    effectMsg = "効果不明";
+  } else if (itemData.effect === "HP回復") {
+    player.hp = Math.min(player.maxHp, player.hp + 30);
+    effectMsg = "HPを30回復した！";
+  } else if (itemData.effect === "MP回復") {
+    player.mp = Math.min(player.maxMp, player.mp + 20);
+    effectMsg = "MPを20回復した！";
+  } else if (itemData.effect === "スキル習得") {
+    if (!player.skills.includes("ファイアボール")) {
+      player.skills.push("ファイアボール");
+      effectMsg = "ファイアボールを覚えた！";
+    } else {
+      effectMsg = "すでに習得済みだ。";
+    }
+  } else {
+    effectMsg = "装備アイテム（現時点では効果なし）";
+  }
+
+  player.inventory.splice(index, 1);
+  log(`[使用] ${item}：${effectMsg}`); renderInventoryList();
+}
+
+
+function renderInventoryList() {
+  const list = document.getElementById("inventoryList");
+  list.innerHTML = "";
+  player.inventory.forEach((item, index) => {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.textContent = "使う";
+    btn.onclick = () => useItem(index);
+    li.textContent = `${item} `;
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+}
+
 </script>
 </body>
 </html>
