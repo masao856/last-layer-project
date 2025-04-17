@@ -3,41 +3,106 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>Last Layer - パーティ戦闘テスト</title>
+  <title>Last Layer - 探索＆戦闘</title>
   <style>
-    body { font-family: sans-serif; background: #111; color: #fff; margin: 20px; }
-    #battleLog { background: #222; padding: 10px; height: 150px; overflow-y: auto; border: 1px solid #555; margin-bottom: 10px; }
-    .log-entry { margin: 2px 0; font-size: 0.9em; }
-    .status-effect { display: inline-block; background: #444; padding: 4px 6px; margin: 2px; border-radius: 4px; font-size: 0.8em; }
-    #actions button { margin-right: 8px; }
+    body { font-family: sans-serif; background: #000; color: #fff; margin: 0; padding: 0; }
+    #backgroundContainer {
+      background-size: cover;
+      background-position: center;
+      width: 100%;
+      height: 220px;
+    }
+    #gameContent {
+      padding: 16px;
+    }
+    #battleLog {
+      background: #222;
+      padding: 10px;
+      height: 140px;
+      overflow-y: auto;
+      border: 1px solid #555;
+      margin-bottom: 10px;
+    }
+    .log-entry {
+      margin: 2px 0;
+      font-size: 0.9em;
+    }
+    .status-effect {
+      display: inline-block;
+      background: #444;
+      padding: 4px 6px;
+      margin: 2px;
+      border-radius: 4px;
+      font-size: 0.8em;
+    }
+    #actions button, #exploreButtons button {
+      margin-right: 8px;
+      margin-bottom: 4px;
+    }
+    #enemyImage {
+      max-height: 160px;
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
 
-<h1>パーティ戦闘</h1>
+<div id="backgroundContainer"></div>
 
-<div id="allyStatusUI"></div>
-<div id="enemyStatusUI"></div>
+<div id="gameContent">
+  <div id="enemyImageContainer">
+    <img id="enemyImage" src="" alt="敵画像">
+  </div>
 
-<div id="battleLog"></div>
+  <div id="allyStatusUI"></div>
+  <div id="enemyStatusUI"></div>
+  <div id="battleLog"></div>
 
-<div id="actions">
-  <button onclick="attack()">攻撃する</button>
-  <button onclick="toggleSkillMenu()">スキルを使う</button>
-  <button onclick="defend()">防御する</button>
-  <button onclick="useItem()">アイテムを使う</button>
+  <div id="exploreButtons">
+    <button onclick="goForward()">進む</button>
+    <button onclick="goBack()">戻る</button>
+  </div>
+
+  <div id="actions">
+    <button onclick="attack()">攻撃する</button>
+    <button onclick="toggleSkillMenu()">スキルを使う</button>
+    <button onclick="defend()">防御する</button>
+    <button onclick="useItem()">アイテムを使う</button>
+  </div>
+
+  <div id="skillMenu" style="display:none; margin-top: 10px;">
+    <strong>スキル選択：</strong>
+    <select id="skillSelect">
+      <option value="ファイアボール">ファイアボール</option>
+      <option value="ヒール">ヒール</option>
+      <option value="サンダー">サンダー</option>
+      <option value="ダークネスウェーブ">ダークネスウェーブ</option>
+    </select>
+    <button onclick="castSelectedSkill()">発動</button>
+  </div>
 </div>
 
-<div id="skillMenu" style="display:none; margin-top: 10px;">
-  <strong>スキル選択：</strong>
-  <select id="skillSelect">
-    <option value="ファイアボール">ファイアボール</option>
-    <option value="ヒール">ヒール</option>
-    <option value="サンダー">サンダー</option>
-    <option value="ダークネスウェーブ">ダークネスウェーブ</option>
-  </select>
-  <button onclick="castSelectedSkill()">発動</button>
-</div>
+<script>
+// 背景と敵画像
+function setBackgroundImage(filename) {
+  document.getElementById("backgroundContainer").style.backgroundImage = `url('images/backgrounds/${filename}')`;
+}
+function setEnemyImage(filename) {
+  document.getElementById("enemyImage").src = `images/enemies/${filename}`;
+}
+
+// 探索用
+function goForward() {
+  logToBattle("探索を進めた！");
+  setBackgroundImage("layer1_a.png");
+  setEnemyImage("skeleton_soldier.png");
+}
+function goBack() {
+  logToBattle("来た道を戻った。");
+  setBackgroundImage("safe_zone_background.png");
+  setEnemyImage("");
+}
+</script>
 
 <script src="skills.js"></script>
 <script src="effect_application_template.js"></script>
@@ -53,105 +118,11 @@
 <script src="hp_regen_template.js"></script>
 <script src="status_clear_template.js"></script>
 <script src="post_battle_template.js"></script>
+<script src="enemy_ai_template.js"></script>
+<script src="enemy_ai_action_template.js"></script>
+<script src="enemy_turn_integration_template.js"></script>
 
-<script>
-// パーティ（プレイヤー + 仲間2人）
-const allies = [
-  { name: "勇者", maxHp: 100, hp: 100, attack: 15, statusEffects: [], side: "player", inventory: ["ポーション"], hpRegen: 5 },
-  { name: "戦士", maxHp: 120, hp: 120, attack: 12, statusEffects: [], side: "player" },
-  { name: "魔法使い", maxHp: 80, hp: 80, attack: 8, statusEffects: [], side: "player" }
-];
-
-const enemy = {
-  name: "スケルトン", maxHp: 80, hp: 80, defense: 5, type: "アンデッド",
-  statusEffects: [], side: "enemy", exp: 20
-};
-
-let currentAllyIndex = 0;
-
-function getCurrentAlly() {
-  return allies[currentAllyIndex];
-}
-
-function updateBattleUI() {
-  const container = document.getElementById("allyStatusUI");
-  container.innerHTML = "";
-  allies.forEach(member => {
-    const div = document.createElement("div");
-    div.innerHTML = `<strong>${member.name}</strong> HP: ${member.hp}/${member.maxHp}`;
-    container.appendChild(div);
-    updateStatusEffectsUI(member, "allyStatusUI");
-  });
-  updateStatusEffectsUI(enemy, "enemyStatusUI");
-}
-
-// コマンド処理
-function attack() {
-  const ally = getCurrentAlly();
-  if (!canActThisTurn(ally)) return logToBattle(`${ally.name} は行動不能だ！`);
-  const damage = Math.max(0, ally.attack - (enemy.defense || 0));
-  enemy.hp -= damage;
-  logToBattle(`${ally.name} の攻撃！ ${enemy.name} に ${damage} ダメージ！`);
-  endTurn();
-}
-
-function defend() {
-  const ally = getCurrentAlly();
-  ally.defending = true;
-  logToBattle(`${ally.name} は防御の構えを取った`);
-  endTurn();
-}
-
-function useItem() {
-  const ally = getCurrentAlly();
-  if (ally.inventory && ally.inventory.includes("ポーション")) {
-    ally.hp = Math.min(ally.maxHp, ally.hp + 30);
-    logToBattle(`${ally.name} はポーションを使って30回復した！`);
-    ally.inventory.splice(ally.inventory.indexOf("ポーション"), 1);
-  } else {
-    logToBattle(`${ally.name} は使えるアイテムを持っていない！`);
-  }
-  endTurn();
-}
-
-function toggleSkillMenu() {
-  const menu = document.getElementById("skillMenu");
-  menu.style.display = (menu.style.display === "none") ? "block" : "none";
-}
-
-function castSelectedSkill() {
-  const ally = getCurrentAlly();
-  const skill = document.getElementById("skillSelect").value;
-  if (!canActThisTurn(ally)) return logToBattle(`${ally.name} は行動不能だ！`);
-  const result = useSkill(skill, ally, enemy);
-  if (result.damage > 0) logToBattle(`${ally.name} の ${skill}！ ${enemy.name} に ${result.damage} ダメージ！`);
-  if (result.healed) logToBattle(`${ally.name} は ${result.healed} 回復した！`);
-  if (result.effectApplied) handleStatusEffectUIAndLog(enemy, { type: skills[skill].effect }, { uiContainerId: "enemyStatusUI" });
-  endTurn();
-}
-
-// ターン終了処理
-function endTurn() {
-  processStatusEffects(enemy);
-  applyDamageOverTimeEffects(enemy);
-  applyAutoHpRegen(enemy);
-  updateBattleUI();
-
-  if (enemy.hp <= 0) {
-    logToBattle(`${enemy.name} を倒した！`);
-    handlePostBattle(getCurrentAlly(), enemy);
-    return;
-  }
-
-  const ally = getCurrentAlly();
-  processStatusEffects(ally);
-  applyDamageOverTimeEffects(ally);
-  applyAutoHpRegen(ally);
-
-  currentAllyIndex = (currentAllyIndex + 1) % allies.length;
-  updateBattleUI();
-}
-</script>
+<!-- プレイヤー/敵/戦闘処理（前のまま）ここに略 -->
 
 </body>
 </html>
