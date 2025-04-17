@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>Last Layer - 完全統合版</title>
+  <title>Last Layer - 敵出現AI統合版</title>
   <style>
     body { font-family: sans-serif; background: #000; color: #fff; margin: 0; }
     #background { width: 100%; height: 200px; background-size: cover; background-position: center; }
@@ -35,12 +35,25 @@
 
 <div id="log"></div>
 
+<script src="js/data/skills.js"></script>
+<script src="js/data/enemy_spawn_table.js"></script>
+
 <script>
+// プレイヤー・敵・戦闘状態
 let distance = 0;
 let inCombat = false;
-let player = { hp: 100, mp: 50, maxHp: 100, maxMp: 50 };
+let player = { name: "勇者", hp: 100, mp: 50, maxHp: 100, maxMp: 50, status: [] };
 let enemy = null;
 
+// ログ出力
+function log(msg) {
+  const entry = document.createElement("div");
+  entry.textContent = msg;
+  document.getElementById("log").appendChild(entry);
+  document.getElementById("log").scrollTop = document.getElementById("log").scrollHeight;
+}
+
+// UI更新
 function updateBackground() {
   let bg = "";
   if (distance < 1000) bg = "fork.png";
@@ -52,12 +65,12 @@ function updateDistance() {
   document.getElementById("distance").textContent = distance;
   updateBackground();
 }
-function log(msg) {
-  const entry = document.createElement("div");
-  entry.textContent = msg;
-  document.getElementById("log").appendChild(entry);
-  document.getElementById("log").scrollTop = document.getElementById("log").scrollHeight;
+function updateStatus() {
+  document.getElementById("playerHp").textContent = player.hp;
+  document.getElementById("playerMp").textContent = player.mp;
 }
+
+// 行動
 function advance() {
   if (inCombat) return log("戦闘中は移動できない！");
   distance += 50;
@@ -72,38 +85,37 @@ function retreat() {
   updateDistance();
 }
 
+// イベント発生
 function triggerEvent() {
   const r = Math.random();
   if (r < 0.05) {
-    log("[イベント] 不気味な泉で癒された。HP/MPが全回復！");
+    log("[イベント] 泉！HP/MP全回復！");
     player.hp = player.maxHp;
     player.mp = player.maxMp;
     updateStatus();
   } else if (r < 0.10) {
-    log("[イベント] 宝箱発見！ポーションを手に入れた！");
+    log("[イベント] 宝箱を発見！ポーション入手！");
   } else if (r < 0.15) {
     log("[イベント] 罠にかかった！HPが10減少！");
     player.hp = Math.max(0, player.hp - 10);
     updateStatus();
-  } else if (r < 0.40) {
-    startCombat("skeleton_soldier.png", "スケルトン・ソルジャー");
+  } else if (r < 0.4) {
+    const enemyData = getEnemyByDistance(distance);
+    startCombat(enemyData.image, enemyData.name);
   }
 }
 
-function updateStatus() {
-  document.getElementById("playerHp").textContent = player.hp;
-  document.getElementById("playerMp").textContent = player.mp;
-}
-
-function startCombat(enemyImage, name) {
+// 戦闘開始
+function startCombat(image, name) {
   inCombat = true;
-  enemy = { name: name, hp: 40 };
-  document.getElementById("enemyImage").src = `/last-layer-project/images/${enemyImage}`;
+  enemy = { name, image, hp: 60, maxHp: 60, mp: 30, maxMp: 30, skills: ["サンダー", "ポイズン"], status: [] };
+  document.getElementById("enemyImage").src = `/last-layer-project/images/${image}`;
   document.getElementById("enemyImage").style.display = "block";
   document.getElementById("combat").style.display = "block";
   log(`[戦闘] ${name}が現れた！`);
 }
 
+// プレイヤー行動
 function attack() {
   const dmg = 10;
   enemy.hp -= dmg;
@@ -111,7 +123,7 @@ function attack() {
   checkEnemy();
 }
 function useSkill() {
-  if (player.mp < 10) return log("[スキル] MPが足りない！");
+  if (player.mp < 10) return log("MPが足りない！");
   const dmg = 20;
   player.mp -= 10;
   enemy.hp -= dmg;
@@ -120,20 +132,24 @@ function useSkill() {
   checkEnemy();
 }
 function defend() {
-  log("[防御] 構えをとった！");
+  log("[防御] 構えを取った！");
 }
 function escape() {
   if (Math.random() < 0.5) {
-    log("[逃走] 成功した！");
+    log("[逃走] 成功！");
     endCombat();
   } else {
     log("[逃走] 失敗！");
   }
 }
+
+// 戦闘終了判定
 function checkEnemy() {
   if (enemy.hp <= 0) {
     log(`[戦闘] ${enemy.name}を倒した！`);
     endCombat();
+  } else {
+    enemyTurn(enemy, player);
   }
 }
 function endCombat() {
@@ -142,8 +158,56 @@ function endCombat() {
   document.getElementById("combat").style.display = "none";
   enemy = null;
 }
+
+// ==== 敵出現ロジック ====
+function getEnemyByDistance(distance) {
+  for (const layerKey in enemySpawnTable) {
+    const { range, normal, midboss, boss } = enemySpawnTable[layerKey];
+    if (distance === boss.distance) {
+      return { image: boss.image, name: boss.name };
+    } else if (distance === midboss.distance) {
+      return { image: midboss.image, name: midboss.name };
+    } else if (distance >= range[0] && distance <= range[1]) {
+      const img = normal[Math.floor(Math.random() * normal.length)];
+      const name = img.replace(".png", "").replace(/_/g, " ");
+      return { image: img, name: name };
+    }
+  }
+  return { image: "skeleton_soldier.png", name: "スケルトン・ソルジャー" };
+}
+
+// ==== 敵AIロジック ====
+function enemyTurn(enemy, player) {
+  if (!enemy || enemy.hp <= 0) return;
+  const usable = (enemy.skills || []).filter(s => enemy.mp >= (skills[s].mpCost || 10));
+  const useSkill = usable.length > 0 && Math.random() < 0.7;
+  if (useSkill) {
+    const skillName = usable[Math.floor(Math.random() * usable.length)];
+    const skill = skills[skillName];
+    enemy.mp -= (skill.mpCost || 10);
+    if (skill.isHealing) {
+      const heal = Math.floor(enemy.maxHp * skill.percentHeal);
+      enemy.hp = Math.min(enemy.maxHp, enemy.hp + heal);
+      log(`[敵スキル] ${enemy.name}は${skillName}で${heal}回復！`);
+    } else {
+      const dmg = skill.power || 0;
+      player.hp = Math.max(0, player.hp - dmg);
+      log(`[敵スキル] ${enemy.name}の${skillName}！${player.name}に${dmg}ダメージ！`);
+      if (skill.effect && !player.status.includes(skill.effect)) {
+        player.status.push(skill.effect);
+        log(`${player.name}は${skill.effect}状態になった！`);
+      }
+    }
+  } else {
+    const dmg = 10;
+    player.hp = Math.max(0, player.hp - dmg);
+    log(`[敵攻撃] ${enemy.name}の攻撃！${player.name}に${dmg}ダメージ！`);
+  }
+}
+
 updateDistance();
 updateStatus();
 </script>
 </body>
 </html>
+
