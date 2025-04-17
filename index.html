@@ -119,6 +119,10 @@ var enemySpawnTable = {
 let distance = 0;
 let inCombat = false;
 let player = { name: "勇者", hp: 100, mp: 50, maxHp: 100, maxMp: 50, status: [] };
+let midbossDefeated = false;
+let bossDefeated = false;
+let currentMidbossName = "";
+let currentBossName = "";
 let enemy = null;
 
 // ログ出力
@@ -223,6 +227,8 @@ function escape() {
 function checkEnemy() {
   if (enemy.hp <= 0) {
     log(`[戦闘] ${enemy.name}を倒した！`);
+if (enemy.name === currentMidbossName) midbossDefeated = true;
+if (enemy.name === currentBossName) bossDefeated = true;
     endCombat();
   } else {
     enemyTurn(enemy, player);
@@ -239,9 +245,11 @@ function endCombat() {
 function getEnemyByDistance(distance) {
   for (const layerKey in enemySpawnTable) {
     const { range, normal, midboss, boss } = enemySpawnTable[layerKey];
-    if (distance === boss.distance) {
+    if (distance === boss.distance && !bossDefeated) {
+      currentBossName = boss.name;
       return { image: boss.image, name: boss.name };
-    } else if (distance === midboss.distance) {
+    } else if (distance === midboss.distance && !midbossDefeated) {
+      currentMidbossName = midboss.name;
       return { image: midboss.image, name: midboss.name };
     } else if (distance >= range[0] && distance <= range[1]) {
       const img = normal[Math.floor(Math.random() * normal.length)];
