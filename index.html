@@ -3,112 +3,129 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>Last Layer - 探索と戦闘（距離制）</title>
+  <title>Last Layer - 実動作イベント＋エンカウント</title>
   <style>
     body { font-family: sans-serif; background: #000; color: #fff; margin: 0; padding: 0; }
-    #backgroundContainer {
-      background-size: cover;
-      background-position: center;
-      width: 100%;
-      height: 220px;
-    }
-    #gameContent {
-      padding: 16px;
-    }
-    #battleLog {
-      background: #222;
-      padding: 10px;
-      height: 140px;
-      overflow-y: auto;
-      border: 1px solid #555;
-      margin-bottom: 10px;
-    }
-    .log-entry {
-      margin: 2px 0; font-size: 0.9em;
-    }
-    .status-effect {
-      display: inline-block;
-      background: #444;
-      padding: 4px 6px;
-      margin: 2px;
-      border-radius: 4px;
-      font-size: 0.8em;
-    }
-    #actions button, #exploreButtons button {
-      margin-right: 8px; margin-bottom: 4px;
-    }
-    #enemyImage {
-      max-height: 160px;
-      margin-bottom: 8px;
-    }
-    #distanceDisplay {
-      margin-bottom: 8px;
-      font-size: 1em;
-      font-weight: bold;
-    }
+    #backgroundContainer { background-size: cover; background-position: center; width: 100%; height: 220px; }
+    #gameContent { padding: 16px; }
+    #battleLog { background: #222; padding: 10px; height: 160px; overflow-y: auto; border: 1px solid #555; margin-bottom: 10px; }
+    .log-entry { margin: 2px 0; font-size: 0.9em; }
+    #actions button, #exploreButtons button { margin-right: 8px; margin-bottom: 4px; }
+    #enemyImage { max-height: 160px; margin-bottom: 8px; }
+    #distanceDisplay { margin-bottom: 8px; font-weight: bold; }
   </style>
 </head>
 <body>
 
 <div id="backgroundContainer"></div>
-
 <div id="gameContent">
-  <div id="enemyImageContainer">
-    <img id="enemyImage" src="" alt="敵画像">
-  </div>
-
+  <div><img id="enemyImage" src="" alt="敵画像"></div>
   <div id="distanceDisplay">現在地：0m</div>
-
-  <div id="allyStatusUI"></div>
-  <div id="enemyStatusUI"></div>
   <div id="battleLog"></div>
-
   <div id="exploreButtons">
     <button onclick="goForward()">進む</button>
     <button onclick="goBack()">戻る</button>
   </div>
-
-  <div id="actions">
-    <button onclick="attack()">攻撃する</button>
-    <button onclick="toggleSkillMenu()">スキルを使う</button>
-    <button onclick="defend()">防御する</button>
-    <button onclick="useItem()">アイテムを使う</button>
-  </div>
-
-  <div id="skillMenu" style="display:none; margin-top: 10px;">
-    <strong>スキル選択：</strong>
-    <select id="skillSelect">
-      <option value="ファイアボール">ファイアボール</option>
-      <option value="ヒール">ヒール</option>
-      <option value="サンダー">サンダー</option>
-      <option value="ダークネスウェーブ">ダークネスウェーブ</option>
-    </select>
-    <button onclick="castSelectedSkill()">発動</button>
-  </div>
 </div>
 
 <script>
-// 現在の進行距離（m）
 let currentDistance = 0;
+let player = {
+  name: "勇者",
+  maxHp: 100,
+  hp: 100,
+  maxMp: 50,
+  mp: 50,
+  inventory: []
+};
 
 function updateDistanceDisplay() {
   document.getElementById("distanceDisplay").textContent = `現在地：${currentDistance}m`;
 }
-
 function setBackgroundImage(filename) {
-  document.getElementById("backgroundContainer").style.backgroundImage = `url('images/backgrounds/${filename}')`;
+  document.getElementById("backgroundContainer").style.backgroundImage = `url('images/backgrounds/' + filename)`;
 }
 function setEnemyImage(filename) {
   document.getElementById("enemyImage").src = `images/enemies/${filename}`;
 }
+function logToBattle(text) {
+  const log = document.createElement("div");
+  log.className = "log-entry";
+  log.textContent = text;
+  const container = document.getElementById("battleLog");
+  container.appendChild(log);
+  container.scrollTop = container.scrollHeight;
+}
+function showEventLog(text) {
+  logToBattle(`[イベント] ${text}`);
+}
 
-// 探索移動
+// ランダムイベント
+function tryEvent() {
+  const r = Math.random();
+  if (r < 0.002) {
+    player.inventory.push("伝説の剣");
+    showEventLog("宝箱（大）を発見！ユニーク武器『伝説の剣』を手に入れた！");
+  } else if (r < 0.022) {
+    player.inventory.push("鉄の鎧");
+    showEventLog("宝箱（中）を発見！鉄の鎧を手に入れた！");
+  } else if (r < 0.072) {
+    player.inventory.push("ポーション");
+    showEventLog("宝箱（小）を見つけた。ポーションを獲得！");
+  } else if (r < 0.122) {
+    const damage = 15;
+    player.hp = Math.max(0, player.hp - damage);
+    showEventLog(`罠を踏んだ！HPが${damage}減少（現在${player.hp}）`);
+  } else if (r < 0.272) {
+    player.hp = player.maxHp;
+    player.mp = player.maxMp;
+    showEventLog("不気味な泉で癒された。HP/MPが全回復！");
+  }
+}
+
+// 背景とイベント管理
+function checkEvents(distance) {
+  if (distance < 1000) setBackgroundImage("layer1_a.png");
+  else if (distance < 1250) setBackgroundImage("layer2_a.png");
+  else if (distance < 1500) setBackgroundImage("layer2_b.png");
+  else if (distance < 2250) setBackgroundImage("layer3_a.png");
+  else if (distance < 3000) setBackgroundImage("layer3_b.png");
+  else setBackgroundImage("layer3_c.png");
+
+  const bossEvents = {
+    500: ["黒鉄の鎧（中ボス）が出現！", "armor_knight.png"],
+    1000: ["堕ちた王（ボス）が現れた！", "fallen_king.png"],
+    1250: ["叫びの鎧（中ボス）が現れた！", "cursed_armor_screaming.png"],
+    1500: ["墓守の怨霊（ボス）が立ちはだかる！", "gravekeeper_wraith.png"],
+    3000: ["砂塵の魔術師（中ボス）が襲い来る！", "cursed_shadow.png"],
+    4500: ["幻王ザナドゥが出現した…！", "zanadu_king.png"]
+  };
+  if (bossEvents[distance]) {
+    const [msg, img] = bossEvents[distance];
+    showEventLog(msg);
+    setEnemyImage(img);
+  }
+
+  const teleportPoints = [0, 1000, 1500];
+  if (teleportPoints.includes(distance)) {
+    showEventLog("魔法陣が光を放っている…地上に戻れそうだ。");
+  }
+
+  // イベント抽選
+  tryEvent();
+
+  // 敵エンカウント（25%）
+  if (Math.random() < 0.25) {
+    showEventLog("敵が現れた！");
+    setEnemyImage("skeleton.png");
+  }
+}
+
 function goForward() {
   currentDistance += 50;
   updateDistanceDisplay();
   logToBattle(`進んだ。（現在地：${currentDistance}m）`);
-  if (currentDistance >= 1000) setBackgroundImage("layer1_a.png");
-  setEnemyImage("skeleton_soldier.png");
+  checkEvents(currentDistance);
 }
 function goBack() {
   currentDistance = Math.max(0, currentDistance - 50);
@@ -117,9 +134,10 @@ function goBack() {
   if (currentDistance === 0) {
     setBackgroundImage("safe_zone_background.png");
     setEnemyImage("");
+  } else {
+    checkEvents(currentDistance);
   }
 }
 </script>
-
 </body>
 </html>
