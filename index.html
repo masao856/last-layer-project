@@ -1,9 +1,137 @@
+
 <!DOCTYPE html>
-<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>戦闘システム</title></head>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Last Layer - 戦闘テストUI強化版</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: #fff; margin: 20px; }
+    #battleLog { background: #222; padding: 10px; height: 150px; overflow-y: auto; border: 1px solid #555; margin-bottom: 10px; }
+    .log-entry { margin: 2px 0; font-size: 0.9em; }
+    .status-effect { display: inline-block; background: #444; padding: 4px 6px; margin: 2px; border-radius: 4px; font-size: 0.8em; }
+    #actions button { margin-right: 8px; }
+  </style>
+</head>
 <body>
-  <h1>Last Layer - 戦闘</h1>
-  <div id="log">ログエリア</div>
-  <div id="player-stats"></div>
-  <button id="startBattle">戦闘開始</button>
-  <script type="module" src="js/main.js"></script>
-</body></html>
+
+<h1>戦闘シーン</h1>
+
+<div id="allyStatusUI"></div>
+<div id="enemyStatusUI"></div>
+
+<div id="battleLog"></div>
+
+<div id="actions">
+  <button onclick="attack()">攻撃する</button>
+  <button onclick="toggleSkillMenu()">スキルを使う</button>
+  <button onclick="defend()">防御する</button>
+  <button onclick="useItem()">アイテムを使う</button>
+</div>
+
+<div id="skillMenu" style="display:none; margin-top: 10px;">
+  <strong>スキル選択：</strong>
+  <select id="skillSelect">
+    <option value="ファイアボール">ファイアボール</option>
+    <option value="ヒール">ヒール</option>
+    <option value="サンダー">サンダー</option>
+    <option value="ダークネスウェーブ">ダークネスウェーブ</option>
+  </select>
+  <button onclick="castSelectedSkill()">発動</button>
+</div>
+
+<script src="skills.js"></script>
+<script src="effect_application_template.js"></script>
+<script src="elemental_damage_template.js"></script>
+<script src="skill_damage_template.js"></script>
+<script src="status_effect_template.js"></script>
+<script src="skill_status_integration_template.js"></script>
+<script src="status_ui_template.js"></script>
+<script src="status_log_template.js"></script>
+<script src="ally_enemy_status_template.js"></script>
+<script src="status_skip_turn_template.js"></script>
+<script src="status_dot_template.js"></script>
+<script src="hp_regen_template.js"></script>
+<script src="status_clear_template.js"></script>
+<script src="post_battle_template.js"></script>
+
+<script>
+// プレイヤー・敵の簡易データ
+const player = {
+  name: "勇者", maxHp: 100, hp: 100, attack: 15, exp: 0, hpRegen: 5,
+  statusEffects: [], side: "player", inventory: ["ポーション"]
+};
+const enemy = {
+  name: "スケルトン", maxHp: 80, hp: 80, defense: 5, type: "アンデッド",
+  statusEffects: [], side: "enemy", exp: 20
+};
+
+function updateBattleUI() {
+  updateStatusEffectsUI(player, "allyStatusUI");
+  updateStatusEffectsUI(enemy, "enemyStatusUI");
+}
+
+// コマンド処理
+function attack() {
+  if (!canActThisTurn(player)) return logToBattle(`${player.name} は行動不能だ！`);
+  const damage = Math.max(0, player.attack - (enemy.defense || 0));
+  enemy.hp -= damage;
+  logToBattle(`${player.name} の攻撃！ ${enemy.name} に ${damage} ダメージ！`);
+  endTurn();
+}
+
+function defend() {
+  player.defending = true;
+  logToBattle(`${player.name} は防御の構えを取った`);
+  endTurn();
+}
+
+function useItem() {
+  if (player.inventory.includes("ポーション")) {
+    player.hp = Math.min(player.maxHp, player.hp + 30);
+    logToBattle(`${player.name} はポーションを使って30回復した！`);
+    player.inventory.splice(player.inventory.indexOf("ポーション"), 1);
+  } else {
+    logToBattle("アイテムがない！");
+  }
+  endTurn();
+}
+
+function toggleSkillMenu() {
+  const menu = document.getElementById("skillMenu");
+  menu.style.display = (menu.style.display === "none") ? "block" : "none";
+}
+
+function castSelectedSkill() {
+  const skill = document.getElementById("skillSelect").value;
+  if (!canActThisTurn(player)) return logToBattle(`${player.name} は行動不能だ！`);
+  const result = useSkill(skill, player, enemy);
+  if (result.damage > 0) {
+    logToBattle(`${player.name} の ${skill}！ ${enemy.name} に ${result.damage} ダメージ！`);
+  }
+  if (result.healed) {
+    logToBattle(`${player.name} は ${result.healed} 回復した！`);
+  }
+  if (result.effectApplied) {
+    handleStatusEffectUIAndLog(enemy, { type: skills[skill].effect }, { uiContainerId: "enemyStatusUI" });
+  }
+  endTurn();
+}
+
+// ターン終了処理
+function endTurn() {
+  processStatusEffects(player);
+  processStatusEffects(enemy);
+  applyDamageOverTimeEffects(player);
+  applyDamageOverTimeEffects(enemy);
+  applyAutoHpRegen(player);
+  applyAutoHpRegen(enemy);
+  updateBattleUI();
+
+  if (enemy.hp <= 0) {
+    logToBattle(`${enemy.name} を倒した！`);
+    handlePostBattle(player, enemy);
+  }
+}
+</script>
+</body>
+</html>
