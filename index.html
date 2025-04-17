@@ -2,139 +2,90 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>Last Layer - 表示修正版</title>
+  <meta charset="UTF-8">
+  <title>Last Layer - フルUI</title>
   <style>
-    body { font-family: sans-serif; background: #000; color: #fff; margin: 0; padding: 0; }
-    #backgroundContainer { background-size: cover; background-position: center; width: 100%; height: 220px; }
-    #gameContent { padding: 16px; }
-    #battleLog { background: #222; padding: 10px; height: 160px; overflow-y: auto; border: 1px solid #555; margin-bottom: 10px; }
-    .log-entry { margin: 2px 0; font-size: 0.9em; }
-    #actions button, #exploreButtons button { margin-right: 8px; margin-bottom: 4px; }
-    #enemyImage { max-height: 160px; margin-bottom: 8px; }
-    #distanceDisplay { margin-bottom: 8px; font-weight: bold; }
+    body { margin: 0; font-family: sans-serif; background: #000; color: #fff; }
+    #backgroundContainer { width: 100%; height: 220px; background-size: cover; background-position: center; }
+    #enemyImage { max-height: 160px; margin: 10px auto; display: block; }
+    #statusBar, #partyStatus, #commands, #exploreControls { padding: 10px; margin: 10px; background: #111; border: 1px solid #444; }
+    #log { background: #222; padding: 10px; margin: 10px; height: 140px; overflow-y: auto; font-size: 0.9em; }
+    .button-group button { margin: 4px; }
+    .ally { display: inline-block; width: 30%; vertical-align: top; text-align: center; }
   </style>
 </head>
 <body>
 
 <div id="backgroundContainer"></div>
-<div id="gameContent">
-  <div><img id="enemyImage" src="" alt="敵画像"></div>
-  <div id="distanceDisplay">現在地：0m</div>
-  <div id="battleLog"></div>
-  <div id="exploreButtons">
-    <button onclick="goForward()">進む</button>
-    <button onclick="goBack()">戻る</button>
-  </div>
+<img id="enemyImage" src="" alt="敵画像">
+
+<div id="statusBar">
+  <div><strong>プレイヤー：</strong> 勇者</div>
+  <div>HP: <span id="hp">100</span> / MP: <span id="mp">50</span></div>
 </div>
+
+<div id="partyStatus">
+  <strong>仲間</strong><br>
+  <div class="ally">戦士A<br>HP: 100<br>MP: 20</div>
+  <div class="ally">魔法使いB<br>HP: 80<br>MP: 60</div>
+</div>
+
+<div id="commands" class="button-group">
+  <strong>戦闘コマンド：</strong><br>
+  <button>攻撃</button>
+  <button>スキル</button>
+  <button>防御</button>
+  <button>アイテム</button>
+</div>
+
+<div id="exploreControls" class="button-group">
+  <strong>探索：</strong><br>
+  <button onclick="goForward()">進む</button>
+  <button onclick="goBack()">戻る</button>
+</div>
+
+<div id="log"></div>
 
 <script>
 let currentDistance = 0;
-let player = {
-  name: "勇者",
-  maxHp: 100,
-  hp: 100,
-  maxMp: 50,
-  mp: 50,
-  inventory: []
-};
+document.getElementById("hp").textContent = 100;
+document.getElementById("mp").textContent = 50;
 
-function updateDistanceDisplay() {
-  document.getElementById("distanceDisplay").textContent = `現在地：${currentDistance}m`;
+function setBackgroundImage(file) {
+  document.getElementById("backgroundContainer").style.backgroundImage = `url('images/backgrounds/' + file)`;
 }
-function setBackgroundImage(filename) {
-  document.getElementById("backgroundContainer").style.backgroundImage = `url('images/backgrounds/' + filename)`;
+function setEnemyImage(file) {
+  document.getElementById("enemyImage").src = `images/${file}`;
 }
-function setEnemyImage(filename) {
-  document.getElementById("enemyImage").src = `images/${filename}`;
+function logEvent(text) {
+  const log = document.getElementById("log");
+  const entry = document.createElement("div");
+  entry.textContent = text;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
 }
-function logToBattle(text) {
-  const log = document.createElement("div");
-  log.className = "log-entry";
-  log.textContent = text;
-  const container = document.getElementById("battleLog");
-  container.appendChild(log);
-  container.scrollTop = container.scrollHeight;
-}
-function showEventLog(text) {
-  logToBattle(`[イベント] ${text}`);
-}
-
-function tryEvent() {
-  const r = Math.random();
-  if (r < 0.002) {
-    player.inventory.push("伝説の剣");
-    showEventLog("宝箱（大）を発見！ユニーク武器『伝説の剣』を手に入れた！");
-  } else if (r < 0.022) {
-    player.inventory.push("鉄の鎧");
-    showEventLog("宝箱（中）を発見！鉄の鎧を手に入れた！");
-  } else if (r < 0.072) {
-    player.inventory.push("ポーション");
-    showEventLog("宝箱（小）を見つけた。ポーションを獲得！");
-  } else if (r < 0.122) {
-    const damage = 15;
-    player.hp = Math.max(0, player.hp - damage);
-    showEventLog(`罠を踏んだ！HPが${damage}減少（現在HP: ${player.hp}）`);
-    if (player.hp === 0) logToBattle("あなたは力尽きた…");
-  } else if (r < 0.272) {
-    player.hp = player.maxHp;
-    player.mp = player.maxMp;
-    showEventLog("不気味な泉で癒された。HP/MPが全回復！");
-  }
-}
-
-function checkEvents(distance) {
-  if (distance < 1000) setBackgroundImage("fork.png");
-  else if (distance < 1250) setBackgroundImage("layer2_a.png");
-  else if (distance < 1500) setBackgroundImage("layer2_b.png");
-  else if (distance < 2250) setBackgroundImage("layer3_a.png");
-  else if (distance < 3000) setBackgroundImage("layer3_b.png");
-  else setBackgroundImage("layer3_c.png");
-
-  const bossEvents = {
-    500: ["黒鉄の鎧（中ボス）が出現！", "armor_knight.png"],
-    1000: ["堕ちた王（ボス）が現れた！", "fallen_king.png"],
-    1250: ["叫びの鎧（中ボス）が現れた！", "cursed_armor_screaming.png"],
-    1500: ["墓守の怨霊（ボス）が立ちはだかる！", "gravekeeper_wraith.png"],
-    3000: ["砂塵の魔術師（中ボス）が襲い来る！", "cursed_shadow.png"],
-    4500: ["幻王ザナドゥが出現した…！", "zanadu.png"]
-  };
-  if (bossEvents[distance]) {
-    const [msg, img] = bossEvents[distance];
-    showEventLog(msg);
-    setEnemyImage(img);
-  }
-
-  const teleportPoints = [0, 1000, 1500];
-  if (teleportPoints.includes(distance)) {
-    showEventLog("魔法陣が光を放っている…地上に戻れそうだ。");
-  }
-
-  tryEvent();
-
-  if (Math.random() < 0.25) {
-    showEventLog("敵が現れた！スケルトン・ソルジャーだ！");
-    setEnemyImage("skeleton_soldier.png");
-  }
-}
-
 function goForward() {
   currentDistance += 50;
-  updateDistanceDisplay();
-  logToBattle(`進んだ。（現在地：${currentDistance}m）`);
-  checkEvents(currentDistance);
+  logEvent(`進んだ（${currentDistance}m）`);
+  checkScene();
 }
 function goBack() {
   currentDistance = Math.max(0, currentDistance - 50);
-  updateDistanceDisplay();
-  logToBattle(`戻った。（現在地：${currentDistance}m）`);
-  if (currentDistance === 0) {
-    setBackgroundImage("safe_zone_background.png");
-    setEnemyImage("");
-  } else {
-    checkEvents(currentDistance);
+  logEvent(`戻った（${currentDistance}m）`);
+  checkScene();
+}
+function checkScene() {
+  if (currentDistance < 1000) setBackgroundImage("fork.png");
+  else if (currentDistance < 1500) setBackgroundImage("layer2_a.png");
+  else setBackgroundImage("layer3_a.png");
+
+  if (Math.random() < 0.25) {
+    setEnemyImage("skeleton_soldier.png");
+    logEvent("敵が現れた！（スケルトン・ソルジャー）");
   }
 }
+setBackgroundImage("fork.png");
 </script>
+
 </body>
 </html>
