@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>Last Layer - 実動作イベント＋エンカウント</title>
+  <title>Last Layer - 表示修正版</title>
   <style>
     body { font-family: sans-serif; background: #000; color: #fff; margin: 0; padding: 0; }
     #backgroundContainer { background-size: cover; background-position: center; width: 100%; height: 220px; }
@@ -46,7 +46,7 @@ function setBackgroundImage(filename) {
   document.getElementById("backgroundContainer").style.backgroundImage = `url('images/backgrounds/' + filename)`;
 }
 function setEnemyImage(filename) {
-  document.getElementById("enemyImage").src = `images/enemies/${filename}`;
+  document.getElementById("enemyImage").src = `images/${filename}`;
 }
 function logToBattle(text) {
   const log = document.createElement("div");
@@ -60,7 +60,6 @@ function showEventLog(text) {
   logToBattle(`[イベント] ${text}`);
 }
 
-// ランダムイベント
 function tryEvent() {
   const r = Math.random();
   if (r < 0.002) {
@@ -75,7 +74,8 @@ function tryEvent() {
   } else if (r < 0.122) {
     const damage = 15;
     player.hp = Math.max(0, player.hp - damage);
-    showEventLog(`罠を踏んだ！HPが${damage}減少（現在${player.hp}）`);
+    showEventLog(`罠を踏んだ！HPが${damage}減少（現在HP: ${player.hp}）`);
+    if (player.hp === 0) logToBattle("あなたは力尽きた…");
   } else if (r < 0.272) {
     player.hp = player.maxHp;
     player.mp = player.maxMp;
@@ -83,9 +83,8 @@ function tryEvent() {
   }
 }
 
-// 背景とイベント管理
 function checkEvents(distance) {
-  if (distance < 1000) setBackgroundImage("layer1_a.png");
+  if (distance < 1000) setBackgroundImage("fork.png");
   else if (distance < 1250) setBackgroundImage("layer2_a.png");
   else if (distance < 1500) setBackgroundImage("layer2_b.png");
   else if (distance < 2250) setBackgroundImage("layer3_a.png");
@@ -98,7 +97,7 @@ function checkEvents(distance) {
     1250: ["叫びの鎧（中ボス）が現れた！", "cursed_armor_screaming.png"],
     1500: ["墓守の怨霊（ボス）が立ちはだかる！", "gravekeeper_wraith.png"],
     3000: ["砂塵の魔術師（中ボス）が襲い来る！", "cursed_shadow.png"],
-    4500: ["幻王ザナドゥが出現した…！", "zanadu_king.png"]
+    4500: ["幻王ザナドゥが出現した…！", "zanadu.png"]
   };
   if (bossEvents[distance]) {
     const [msg, img] = bossEvents[distance];
@@ -111,13 +110,11 @@ function checkEvents(distance) {
     showEventLog("魔法陣が光を放っている…地上に戻れそうだ。");
   }
 
-  // イベント抽選
   tryEvent();
 
-  // 敵エンカウント（25%）
   if (Math.random() < 0.25) {
-    showEventLog("敵が現れた！");
-    setEnemyImage("skeleton.png");
+    showEventLog("敵が現れた！スケルトン・ソルジャーだ！");
+    setEnemyImage("skeleton_soldier.png");
   }
 }
 
